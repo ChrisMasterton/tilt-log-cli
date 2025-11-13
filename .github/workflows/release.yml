@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-macos:
+    name: Build macOS Universal (ARM + Intel)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add targets
+        run: |
+          rustup target add aarch64-apple-darwin
+          rustup target add x86_64-apple-darwin
+
+      # ----- Build ARM -----
+      - name: Build ARM64
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Package ARM64 tarball
+        run: |
+          mkdir -p dist
+          cp target/aarch64-apple-darwin/release/tilt-logs dist/tilt-logs
+          tar -czvf tilt-logs-aarch64-apple-darwin.tar.gz -C dist tilt-logs
+
+      # ----- Build Intel -----
+      - name: Build Intel
+        run: cargo build --release --target x86_64-apple-darwin
+
+      - name: Package Intel tarball
+        run: |
+          rm dist/tilt-logs
+          cp target/x86_64-apple-darwin/release/tilt-logs dist/tilt-logs
+          tar -czvf tilt-logs-x86_64-apple-darwin.tar.gz -C dist tilt-logs
+
+      # ----- Compute SHAs -----
+      - name: SHA256 hashes
+        run: |
+          echo "ARM64:"
+          shasum -a 256 tilt-logs-aarch64-apple-darwin.tar.gz
+          echo "Intel:"
+          shasum -a 256 tilt-logs-x86_64-apple-darwin.tar.gz
+
+      # ----- Upload release assets -----
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            tilt-logs-aarch64-apple-darwin.tar.gz
+            tilt-logs-x86_64-apple-darwin.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
