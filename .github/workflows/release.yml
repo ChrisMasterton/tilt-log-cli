@@ -55,10 +55,20 @@ jobs:
           sed -i '' "s/REPLACE_WITH_REAL_SHA256/${{ steps.shas.outputs.arm64_sha }}/" Formula/tilt-logs.rb
           sed -i '' "0,/REPLACE_WITH_REAL_SHA256/s//${{ steps.shas.outputs.intel_sha }}/" Formula/tilt-logs.rb
 
+      # Switch from detached HEAD → main branch
+      - name: Switch to main branch
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull origin main
+
+      # Apply and commit formula update to main
       - name: Commit formula change
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update Homebrew formula checksums"
+          add_options: "--all"
+          push_options: "--force"
 
       # Upload assets
       - name: Upload to Release
