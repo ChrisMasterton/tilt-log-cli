@@ -3,13 +3,13 @@
 class TiltLogs < Formula
   desc "CLI tool to read logs from Docker containers managed by Tilt"
   homepage "https://github.com/chris/tilt-logs"
-  version "0.1.0"
+  version "0.1.5"
 
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/chris/tilt-logs/releases/download/v0.1.0/tilt-logs-aarch64-apple-darwin.tar.gz"
+    url "https://github.com/chris/tilt-logs/releases/download/v0.1.5/tilt-logs-aarch64-apple-darwin.tar.gz"
     sha256 "REPLACE_WITH_REAL_SHA256"
   elsif OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/chris/tilt-logs/releases/download/v0.1.0/tilt-logs-x86_64-apple-darwin.tar.gz"
+    url "https://github.com/chris/tilt-logs/releases/download/v0.1.5/tilt-logs-x86_64-apple-darwin.tar.gz"
     sha256 "REPLACE_WITH_REAL_SHA256"
   else
     odie "Unsupported platform"
