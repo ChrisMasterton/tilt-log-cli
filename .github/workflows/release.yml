@@ -58,8 +58,10 @@ jobs:
           VERSION="${GITHUB_REF#refs/tags/}"
           sed -i '' "s/version \".*\"/version \"${VERSION}\"/" Formula/tilt-logs.rb
           sed -i '' "s|releases/download/v[0-9.]*|releases/download/${VERSION}|g" Formula/tilt-logs.rb
-          sed -i '' "s/REPLACE_WITH_REAL_SHA256/${{ steps.shas.outputs.arm64_sha }}/" Formula/tilt-logs.rb
-          sed -i '' "0,/REPLACE_WITH_REAL_SHA256/s//${{ steps.shas.outputs.intel_sha }}/" Formula/tilt-logs.rb
+          # Replace ARM64 SHA (first occurrence - line ~10)
+          sed -i '' "8,11s/REPLACE_WITH_REAL_SHA256/${{ steps.shas.outputs.arm64_sha }}/" Formula/tilt-logs.rb
+          # Replace Intel SHA (second occurrence - line ~13)
+          sed -i '' "12,15s/REPLACE_WITH_REAL_SHA256/${{ steps.shas.outputs.intel_sha }}/" Formula/tilt-logs.rb
 
       # Switch from detached HEAD → main branch
       - name: Switch to main branch
