@@ -28,7 +28,10 @@ bump:
 	new_patch=$$((patch + 1)); new_version="$$major.$$minor.$$new_patch"; \
 	echo "Bumping version: $$current -> $$new_version"; \
 	sed -i '' -E "s/^version = \"[0-9]+\.[0-9]+\.[0-9]+\"/version = \"$$new_version\"/" Cargo.toml; \
-	echo "Updated Cargo.toml to version $$new_version"
+	sed -i '' "s/version \"v[0-9.]*\"/version \"v$$new_version\"/" Formula/$(APP_NAME).rb; \
+	sed -i '' "s|releases/download/v[0-9.]*|releases/download/v$$new_version|g" Formula/$(APP_NAME).rb; \
+	sed -i '' 's/sha256 "[^"]*"/sha256 "REPLACE_WITH_REAL_SHA256"/' Formula/$(APP_NAME).rb; \
+	echo "Updated Cargo.toml and Formula to version $$new_version"
 
 # Format, Clippy and Security audit
 audit: fmt clippy
