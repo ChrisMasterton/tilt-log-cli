@@ -1,0 +1,31 @@
+
+
+# Rust build artifacts
+target/
+
+# Cargo backup files
+**/*.rs.bk
+
+# Do not commit lockfile in multi-platform CLI libs
+Cargo.lock
+
+# Homebrew distribution tarballs
+tilt-logs-aarch64-apple-darwin.tar.gz
+tilt-logs-x86_64-apple-darwin.tar.gz
+
+# Dist folder used during packaging
+dist/
+
+# Logs
+*.log
+
+# Editor / IDE files
+.vscode/
+.idea/
+*.iml
+
+# macOS system files
+.DS_Store
+
+# Cursor / AI tools
+.cursor/

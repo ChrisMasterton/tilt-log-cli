@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-macos:
-    name: Build macOS Universal (ARM + Intel)
+    name: Build macOS ARM + Intel
     runs-on: macos-latest
 
     steps:
@@ -22,36 +22,46 @@ jobs:
           rustup target add aarch64-apple-darwin
           rustup target add x86_64-apple-darwin
 
-      # ----- Build ARM -----
+      # Build ARM
       - name: Build ARM64
         run: cargo build --release --target aarch64-apple-darwin
 
-      - name: Package ARM64 tarball
+      - name: Package ARM64
         run: |
           mkdir -p dist
           cp target/aarch64-apple-darwin/release/tilt-logs dist/tilt-logs
           tar -czvf tilt-logs-aarch64-apple-darwin.tar.gz -C dist tilt-logs
 
-      # ----- Build Intel -----
+      # Build Intel
       - name: Build Intel
         run: cargo build --release --target x86_64-apple-darwin
 
-      - name: Package Intel tarball
+      - name: Package Intel
         run: |
           rm dist/tilt-logs
           cp target/x86_64-apple-darwin/release/tilt-logs dist/tilt-logs
           tar -czvf tilt-logs-x86_64-apple-darwin.tar.gz -C dist tilt-logs
 
-      # ----- Compute SHAs -----
-      - name: SHA256 hashes
+      # SHA256
+      - name: Compute SHA256
+        id: shas
         run: |
-          echo "ARM64:"
-          shasum -a 256 tilt-logs-aarch64-apple-darwin.tar.gz
-          echo "Intel:"
-          shasum -a 256 tilt-logs-x86_64-apple-darwin.tar.gz
+          echo "arm64_sha=$(shasum -a 256 tilt-logs-aarch64-apple-darwin.tar.gz | cut -d ' ' -f1)" >> $GITHUB_OUTPUT
+          echo "intel_sha=$(shasum -a 256 tilt-logs-x86_64-apple-darwin.tar.gz | cut -d ' ' -f1)" >> $GITHUB_OUTPUT
 
-      # ----- Upload release assets -----
-      - name: Upload Release Assets
+      # Update formula
+      - name: Patch Homebrew Formula
+        run: |
+          sed -i '' "s/REPLACE_WITH_REAL_SHA256/${{ steps.shas.outputs.arm64_sha }}/" Formula/tilt-logs.rb
+          sed -i '' "0,/REPLACE_WITH_REAL_SHA256/s//${{ steps.shas.outputs.intel_sha }}/" Formula/tilt-logs.rb
+
+      - name: Commit formula change
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update Homebrew formula checksums"
+
+      # Upload assets
+      - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
