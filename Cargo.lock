@@ -153,7 +153,7 @@ dependencies = [
 
 [[package]]
 name = "tilt-logs"
-version = "0.1.0"
+version = "0.1.6"
 dependencies = [
  "clap",
 ]
